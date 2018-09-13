@@ -7,20 +7,24 @@ import java.io.PipedOutputStream;
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioTrack;
+import android.util.Log;
 
 public class MAudioPlayer {
     private PipedInputStream instream;
     private boolean isPlaying ;
     private AudioTrack audioplayer;
     private byte[] buffer;
+    private int n_bufsize;
     public MAudioPlayer() {
         isPlaying = false;
         instream = null;
         //初始化播音类
-        int bufsize = AudioTrack.getMinBufferSize(11025, AudioFormat.CHANNEL_IN_STEREO,
+        n_bufsize = AudioTrack.getMinBufferSize(11025, AudioFormat.CHANNEL_IN_STEREO,
                 AudioFormat.ENCODING_PCM_16BIT);
+        Log.w("audiotest", "StartAudioData n_bufsize: ------------------------"+n_bufsize);
+
         audioplayer = new AudioTrack(AudioManager.STREAM_MUSIC, 11025, AudioFormat.CHANNEL_IN_STEREO,
-                AudioFormat.ENCODING_PCM_16BIT, bufsize,AudioTrack.MODE_STREAM);
+                AudioFormat.ENCODING_PCM_16BIT, n_bufsize,AudioTrack.MODE_STREAM);
     }
     //设置管道流，用于接受音频数据
     public void setOutputStream(PipedOutputStream out) throws IOException{
@@ -35,8 +39,7 @@ public class MAudioPlayer {
             try {
                 while (instream.available()>0){
                     int size = instream.read(buffer);
-                    audioplayer.write(buffer, 0
-                            , size);//不断播放数据
+                    audioplayer.write(buffer, 0, size);//不断播放数据
                 }
             } catch (IOException e) {
                 e.printStackTrace();
